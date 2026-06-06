@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-config
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: grafana
+    app.kubernetes.io/component: config
+data:
+  grafana.ini: |
+    [server]
+    http_port = 3000
+    root_url = %(protocol)s://%(domain)s:%(http_port)s/
+
+    [security]
+    admin_user = admin
+    admin_password = admin
+
+    [auth.anonymous]
+    enabled = true
+    org_role = Viewer
+
+    [dashboards]
+    default_home_dashboard_path = /var/lib/grafana/dashboards/cluster-overview.json
+
+    [log]
+    mode = console
+    level = info
+
+    [paths]
+    provisioning = /etc/grafana/provisioning
