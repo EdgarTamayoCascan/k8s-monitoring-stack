@@ -75,7 +75,6 @@ Grafana/
 │   │   └── namespace.yaml             # monitoring namespace
 │   ├── grafana/
 │   │   ├── configmap.yaml             # grafana.ini configuration
-│   │   ├── dashboard-configmap.yaml   # Dashboard JSON mount (generated)
 │   │   ├── dashboard-provisioning.yaml# Dashboard auto-discovery config
 │   │   ├── datasource-provisioning.yaml# Prometheus + Loki datasources
 │   │   ├── deployment.yaml            # Grafana Deployment
@@ -92,10 +91,12 @@ Grafana/
 │   │   ├── deployment.yaml            # Loki Deployment
 │   │   ├── pvc.yaml                   # Persistent storage
 │   │   └── service.yaml               # ClusterIP service
-│   └── promtail/
-│       ├── configmap.yaml             # Promtail scrape config
-│       ├── rbac.yaml                  # ServiceAccount + ClusterRole
-│       └── daemonset.yaml             # Promtail DaemonSet
+│   ├── promtail/
+│   │   ├── configmap.yaml             # Static file discovery + label extraction
+│   │   ├── rbac.yaml                  # ServiceAccount + ClusterRole
+│   │   └── daemonset.yaml             # Promtail DaemonSet
+│   └── dummy-app/
+│       └── deployment.yaml            # Test workload (2 replicas, logs + metrics)
 └── scripts/
     ├── 00-prerequisites.sh            # Install Docker, kubectl, kind
     ├── 01-create-cluster.sh           # Create kind cluster
