@@ -293,7 +293,7 @@
       },
       "targets": [
         {
-          "expr": "{namespace=\"monitoring\"}",
+          "expr": "{k8s_namespace_name=\"monitoring\"}",
           "legendFormat": "",
           "refId": "A"
         }

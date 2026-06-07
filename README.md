@@ -21,8 +21,8 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 │  └──────────┘             └────┬─────┘                 │
 │                                │                        │
 │                           ┌────┴─────┐                 │
-│                           │ Promtail │ (DaemonSet)     │
-│                           │ collects │                 │
+│                           │   OTel   │ (DaemonSet)     │
+│                           │Collector │                 │
 │                           │ pod logs │                 │
 │                           └──────────┘                 │
 └─────────────────────────────────────────────────────────┘
@@ -32,10 +32,10 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 
 | Component   | Version | Purpose                                  | Access                |
 |-------------|---------|------------------------------------------|-----------------------|
-| Grafana     | 11.6.0  | Dashboards & visualization               | http://localhost:3000  |
-| Prometheus  | 3.4.1   | Metrics collection & storage             | http://localhost:9090  |
-| Loki        | 3.5.0   | Log aggregation                          | Internal (ClusterIP)  |
-| Promtail    | 3.5.0   | Log shipping agent (DaemonSet)           | Internal              |
+| Grafana        | 11.6.0  | Dashboards & visualization               | http://localhost:3000  |
+| Prometheus     | 3.4.1   | Metrics collection & storage             | http://localhost:9090  |
+| Loki           | 3.5.0   | Log aggregation                          | Internal (ClusterIP)  |
+| OTel Collector | 0.127.0 | Log collection agent (DaemonSet, contrib) | Internal              |
 
 ## Prerequisites
 
@@ -91,10 +91,10 @@ Grafana/
 │   │   ├── deployment.yaml            # Loki Deployment
 │   │   ├── pvc.yaml                   # Persistent storage
 │   │   └── service.yaml               # ClusterIP service
-│   ├── promtail/
-│   │   ├── configmap.yaml             # Static file discovery + label extraction
+│   ├── otel-collector/
+│   │   ├── configmap.yaml             # Filelog receiver + OTLP exporter to Loki
 │   │   ├── rbac.yaml                  # ServiceAccount + ClusterRole
-│   │   └── daemonset.yaml             # Promtail DaemonSet
+│   │   └── daemonset.yaml             # OTel Collector DaemonSet
 │   └── dummy-app/
 │       └── deployment.yaml            # Test workload (2 replicas, logs + metrics)
 └── scripts/
@@ -125,12 +125,12 @@ Everything is declarative:
 - **Dashboards**: JSON files loaded via Grafana's file-based provisioning
 - **Prometheus scrape targets**: Defined in ConfigMap, with Kubernetes SD for auto-discovery
 - **Loki**: Configured via YAML ConfigMap, no manual setup
-- **Promtail**: Auto-discovers pod logs via Kubernetes SD relabeling
+- **OTel Collector**: Filelog receiver tails pod logs, exports to Loki via OTLP
 
 ### Security Considerations
 - All containers run as non-root users (`runAsNonRoot: true`)
 - Dedicated `fsGroup` for volume permissions
-- RBAC with least-privilege: Prometheus and Promtail get read-only access to K8s API
+- RBAC with least-privilege: Prometheus and OTel Collector get read-only access to K8s API
 - Resource limits set on all containers to prevent runaway usage
 
 ### What's NOT automated (manual steps)

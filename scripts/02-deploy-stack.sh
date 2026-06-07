@@ -38,11 +38,11 @@ kubectl apply -f "${MANIFESTS}/prometheus/service.yaml"
 log "Deploying Loki..."
 kubectl apply -f "${MANIFESTS}/loki/"
 
-# 5. Promtail (log shipper)
-log "Deploying Promtail..."
-kubectl apply -f "${MANIFESTS}/promtail/rbac.yaml"
-kubectl apply -f "${MANIFESTS}/promtail/configmap.yaml"
-kubectl apply -f "${MANIFESTS}/promtail/daemonset.yaml"
+# 5. OpenTelemetry Collector (log shipper)
+log "Deploying OpenTelemetry Collector..."
+kubectl apply -f "${MANIFESTS}/otel-collector/rbac.yaml"
+kubectl apply -f "${MANIFESTS}/otel-collector/configmap.yaml"
+kubectl apply -f "${MANIFESTS}/otel-collector/daemonset.yaml"
 
 # 6. Grafana (depends on datasources being reachable)
 log "Deploying Grafana..."
@@ -53,7 +53,7 @@ printf "\n${BOLD}Waiting for deployments to become ready...${NC}\n"
 kubectl rollout status deployment/prometheus  -n monitoring --timeout=180s
 kubectl rollout status deployment/loki        -n monitoring --timeout=180s
 kubectl rollout status deployment/grafana     -n monitoring --timeout=180s
-kubectl rollout status daemonset/promtail     -n monitoring --timeout=180s
+kubectl rollout status daemonset/otel-collector -n monitoring --timeout=180s
 
 printf "\n${BOLD}=== Stack Status ===${NC}\n"
 kubectl get pods -n monitoring -o wide
