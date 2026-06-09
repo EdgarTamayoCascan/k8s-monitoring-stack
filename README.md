@@ -102,7 +102,7 @@ Grafana/
 │   │   ├── configmap.yaml             # Filelog receiver + OTLP exporter to Loki
 │   │   ├── rbac.yaml                  # ServiceAccount + ClusterRole
 │   │   └── daemonset.yaml             # OTel Collector DaemonSet
-│   └── dummy-app/
+│   └── monte-carlo-pi/
 │       └── deployment.yaml            # Monte Carlo Pi deployment (mounts app/ via ConfigMap)
 └── scripts/
     ├── 00-prerequisites.sh            # Install Docker, kubectl, kind

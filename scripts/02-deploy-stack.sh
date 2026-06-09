@@ -50,7 +50,7 @@ kubectl create configmap monte-carlo-app \
     --from-file="${PROJECT_DIR}/app/" \
     --namespace=monitoring \
     --dry-run=client -o yaml | kubectl apply -f -
-kubectl apply -f "${MANIFESTS}/dummy-app/deployment.yaml"
+kubectl apply -f "${MANIFESTS}/monte-carlo-pi/deployment.yaml"
 
 # 7. Grafana (depends on datasources being reachable)
 log "Deploying Grafana..."
