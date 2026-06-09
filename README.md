@@ -44,7 +44,7 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 ## Prerequisites
 
 - **macOS** with Homebrew
-- **Docker Desktop** (running)
+- **Docker runtime** (Docker Desktop or [Colima](https://github.com/abiosoft/colima))
 - ~4 GB RAM available for the cluster
 
 ## Quick Start
