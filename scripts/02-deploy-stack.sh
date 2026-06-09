@@ -44,11 +44,19 @@ kubectl apply -f "${MANIFESTS}/otel-collector/rbac.yaml"
 kubectl apply -f "${MANIFESTS}/otel-collector/configmap.yaml"
 kubectl apply -f "${MANIFESTS}/otel-collector/daemonset.yaml"
 
-# 6. Grafana (depends on datasources being reachable)
+# 6. Monte Carlo Pi simulator (test workload)
+log "Deploying Monte Carlo Pi simulator..."
+kubectl create configmap monte-carlo-app \
+    --from-file="${PROJECT_DIR}/app/" \
+    --namespace=monitoring \
+    --dry-run=client -o yaml | kubectl apply -f -
+kubectl apply -f "${MANIFESTS}/dummy-app/deployment.yaml"
+
+# 7. Grafana (depends on datasources being reachable)
 log "Deploying Grafana..."
 kubectl apply -f "${MANIFESTS}/grafana/"
 
-# 7. Wait for rollouts
+# 8. Wait for rollouts
 printf "\n${BOLD}Waiting for deployments to become ready...${NC}\n"
 kubectl rollout status deployment/prometheus  -n monitoring --timeout=180s
 kubectl rollout status deployment/loki        -n monitoring --timeout=180s

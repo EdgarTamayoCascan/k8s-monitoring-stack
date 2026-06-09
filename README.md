@@ -72,6 +72,8 @@ After deployment:
 ```
 Grafana/
 ├── kind-cluster.yaml                  # Kind cluster definition with port mappings
+├── app/
+│   └── simulator.py                   # Monte Carlo Pi estimator (Python source)
 ├── dashboards/
 │   ├── cluster-overview.json          # Infrastructure monitoring dashboard
 │   └── monte-carlo-pi.json           # Monte Carlo Pi estimation dashboard
@@ -101,7 +103,7 @@ Grafana/
 │   │   ├── rbac.yaml                  # ServiceAccount + ClusterRole
 │   │   └── daemonset.yaml             # OTel Collector DaemonSet
 │   └── dummy-app/
-│       └── deployment.yaml            # Monte Carlo Pi simulator (2 replicas)
+│       └── deployment.yaml            # Monte Carlo Pi deployment (mounts app/ via ConfigMap)
 └── scripts/
     ├── 00-prerequisites.sh            # Install Docker, kubectl, kind
     ├── 01-create-cluster.sh           # Create kind cluster
