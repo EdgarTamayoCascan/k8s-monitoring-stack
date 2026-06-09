@@ -30,7 +30,7 @@
       "description": "Current Monte Carlo estimate of Pi (should converge to 3.14159...)",
       "type": "stat",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 5, "w": 5, "x": 0, "y": 1 },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 1 },
       "fieldConfig": {
         "defaults": {
           "decimals": 6,
@@ -63,45 +63,11 @@
       ]
     },
     {
-      "title": "True π",
-      "description": "The actual value of Pi for reference",
-      "type": "stat",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 5, "w": 3, "x": 5, "y": 1 },
-      "fieldConfig": {
-        "defaults": {
-          "decimals": 6,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "blue", "value": null }
-            ]
-          },
-          "color": { "mode": "thresholds" }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "orientation": "auto",
-        "textMode": "value",
-        "colorMode": "value",
-        "graphMode": "none"
-      },
-      "targets": [
-        {
-          "expr": "vector(3.141593)",
-          "legendFormat": "π",
-          "refId": "A"
-        }
-      ]
-    },
-    {
       "title": "Absolute Error",
       "description": "|estimate - π|",
       "type": "stat",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 5, "w": 4, "x": 8, "y": 1 },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 1 },
       "fieldConfig": {
         "defaults": {
           "decimals": 6,
@@ -134,50 +100,11 @@
       ]
     },
     {
-      "title": "Hit Rate",
-      "description": "Fraction of darts inside the circle (should converge to π/4 ≈ 78.54%)",
-      "type": "gauge",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 5, "w": 4, "x": 12, "y": 1 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "decimals": 2,
-          "min": 0,
-          "max": 1,
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              { "color": "red", "value": null },
-              { "color": "orange", "value": 0.7 },
-              { "color": "yellow", "value": 0.75 },
-              { "color": "green", "value": 0.78 }
-            ]
-          },
-          "color": { "mode": "thresholds" }
-        },
-        "overrides": []
-      },
-      "options": {
-        "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false },
-        "orientation": "auto",
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true
-      },
-      "targets": [
-        {
-          "expr": "avg(monte_carlo_hit_rate)",
-          "legendFormat": "hit rate",
-          "refId": "A"
-        }
-      ]
-    },
-    {
       "title": "Total Throws",
       "description": "Number of darts thrown across all pods",
       "type": "stat",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 5, "w": 4, "x": 16, "y": 1 },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 1 },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -211,7 +138,7 @@
       "description": "Rate of darts being thrown",
       "type": "stat",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 5, "w": 4, "x": 20, "y": 1 },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 1 },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -249,7 +176,7 @@
     },
     {
       "title": "π Convergence Over Time",
-      "description": "Watch the Monte Carlo estimate (colored line) converge toward true π (dashed blue line) as more darts are thrown",
+      "description": "Watch the Monte Carlo estimate (orange line) converge toward true π (dashed blue line) as more darts are thrown",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "gridPos": { "h": 9, "w": 16, "x": 0, "y": 7 },
@@ -302,7 +229,7 @@
     },
     {
       "title": "Hits vs Misses",
-      "description": "Cumulative count of darts inside (hit) and outside (miss) the circle",
+      "description": "Cumulative count of darts inside (hit) and outside (miss) the circle. Hit rate should converge to π/4 ≈ 78.54%.",
       "type": "piechart",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "gridPos": { "h": 9, "w": 8, "x": 16, "y": 7 },
@@ -387,72 +314,11 @@
       ]
     },
     {
-      "title": "Hit Rate Over Time",
-      "description": "Should converge to π/4 ≈ 0.7854 (the ratio of circle area to square area)",
+      "title": "Per-Pod π Estimate",
+      "description": "Compare estimates from each replica — they should converge independently toward true π (dashed line)",
       "type": "timeseries",
       "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
       "gridPos": { "h": 8, "w": 12, "x": 12, "y": 16 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "percentunit",
-          "decimals": 4,
-          "min": 0.5,
-          "max": 1,
-          "custom": {
-            "drawStyle": "line",
-            "lineInterpolation": "smooth",
-            "fillOpacity": 10,
-            "pointSize": 3,
-            "showPoints": "never",
-            "lineWidth": 2
-          }
-        },
-        "overrides": [
-          {
-            "matcher": { "id": "byName", "options": "π/4 (theoretical)" },
-            "properties": [
-              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [10, 10] } },
-              { "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } },
-              { "id": "custom.lineWidth", "value": 1 }
-            ]
-          },
-          {
-            "matcher": { "id": "byName", "options": "hit rate" },
-            "properties": [
-              { "id": "color", "value": { "mode": "fixed", "fixedColor": "green" } }
-            ]
-          }
-        ]
-      },
-      "options": {
-        "tooltip": { "mode": "multi" },
-        "legend": { "displayMode": "list", "placement": "bottom" }
-      },
-      "targets": [
-        {
-          "expr": "avg(monte_carlo_hit_rate)",
-          "legendFormat": "hit rate",
-          "refId": "A"
-        },
-        {
-          "expr": "vector(0.7853981633974483)",
-          "legendFormat": "π/4 (theoretical)",
-          "refId": "B"
-        }
-      ]
-    },
-    {
-      "title": "Logs & Infrastructure",
-      "type": "row",
-      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
-      "collapsed": false
-    },
-    {
-      "title": "Per-Pod π Estimate",
-      "description": "Compare estimates from each replica — they should converge independently",
-      "type": "timeseries",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 25 },
       "fieldConfig": {
         "defaults": {
           "decimals": 5,
@@ -465,7 +331,16 @@
             "lineWidth": 1
           }
         },
-        "overrides": []
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "true π" },
+            "properties": [
+              { "id": "custom.lineStyle", "value": { "fill": "dash", "dash": [10, 10] } },
+              { "id": "color", "value": { "mode": "fixed", "fixedColor": "blue" } },
+              { "id": "custom.lineWidth", "value": 1 }
+            ]
+          }
+        ]
       },
       "options": {
         "tooltip": { "mode": "multi", "sort": "desc" },
@@ -474,118 +349,28 @@
       "targets": [
         {
           "expr": "monte_carlo_pi_estimate",
-          "legendFormat": "{{pod}}",
+          "legendFormat": "{{kubernetes_pod_name}}",
           "refId": "A"
+        },
+        {
+          "expr": "vector(3.14159265358979)",
+          "legendFormat": "true π",
+          "refId": "B"
         }
       ]
     },
     {
-      "title": "Throw Distance Distribution",
-      "description": "Distribution of dart distances from center (unit circle radius = 1.0)",
-      "type": "barchart",
-      "datasource": { "type": "prometheus", "uid": "${DS_PROMETHEUS}" },
-      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 25 },
-      "fieldConfig": {
-        "defaults": {
-          "unit": "short",
-          "custom": {
-            "fillOpacity": 80
-          },
-          "color": { "mode": "palette-classic" }
-        },
-        "overrides": []
-      },
-      "options": {
-        "orientation": "horizontal",
-        "xTickLabelRotation": 0,
-        "showValue": "auto",
-        "stacking": "none",
-        "groupWidth": 0.7,
-        "barWidth": 0.9,
-        "tooltip": { "mode": "single" },
-        "legend": { "displayMode": "hidden" }
-      },
-      "targets": [
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.1\"}) or vector(0)",
-          "legendFormat": "0.0-0.1",
-          "refId": "A",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.2\"}) - sum(monte_carlo_distance_bucket{le=\"0.1\"}) or vector(0)",
-          "legendFormat": "0.1-0.2",
-          "refId": "B",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.3\"}) - sum(monte_carlo_distance_bucket{le=\"0.2\"}) or vector(0)",
-          "legendFormat": "0.2-0.3",
-          "refId": "C",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.4\"}) - sum(monte_carlo_distance_bucket{le=\"0.3\"}) or vector(0)",
-          "legendFormat": "0.3-0.4",
-          "refId": "D",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.5\"}) - sum(monte_carlo_distance_bucket{le=\"0.4\"}) or vector(0)",
-          "legendFormat": "0.4-0.5",
-          "refId": "E",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.6\"}) - sum(monte_carlo_distance_bucket{le=\"0.5\"}) or vector(0)",
-          "legendFormat": "0.5-0.6",
-          "refId": "F",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.7\"}) - sum(monte_carlo_distance_bucket{le=\"0.6\"}) or vector(0)",
-          "legendFormat": "0.6-0.7",
-          "refId": "G",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.8\"}) - sum(monte_carlo_distance_bucket{le=\"0.7\"}) or vector(0)",
-          "legendFormat": "0.7-0.8",
-          "refId": "H",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"0.9\"}) - sum(monte_carlo_distance_bucket{le=\"0.8\"}) or vector(0)",
-          "legendFormat": "0.8-0.9",
-          "refId": "I",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"1.0\"}) - sum(monte_carlo_distance_bucket{le=\"0.9\"}) or vector(0)",
-          "legendFormat": "0.9-1.0 ★",
-          "refId": "J",
-          "instant": true
-        },
-        {
-          "expr": "sum(monte_carlo_distance_bucket{le=\"+Inf\"}) - sum(monte_carlo_distance_bucket{le=\"1.0\"}) or vector(0)",
-          "legendFormat": ">1.0 (miss)",
-          "refId": "K",
-          "instant": true
-        }
-      ],
-      "transformations": [
-        {
-          "id": "renameByRegex",
-          "options": { "regex": "(.*)", "renamePattern": "$1" }
-        }
-      ]
+      "title": "Logs",
+      "type": "row",
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 24 },
+      "collapsed": false
     },
     {
       "title": "Recent Dart Throws (Loki)",
       "description": "Live log stream of individual dart throws from the Monte Carlo simulator",
       "type": "logs",
       "datasource": { "type": "loki", "uid": "${DS_LOKI}" },
-      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 32 },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 25 },
       "options": {
         "showTime": true,
         "showLabels": true,
