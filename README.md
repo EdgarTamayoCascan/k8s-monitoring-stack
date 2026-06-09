@@ -69,7 +69,8 @@ After deployment:
 Grafana/
 ├── kind-cluster.yaml                  # Kind cluster definition with port mappings
 ├── dashboards/
-│   └── cluster-overview.json          # Pre-provisioned Grafana dashboard
+│   ├── cluster-overview.json          # Infrastructure monitoring dashboard
+│   └── monte-carlo-pi.json           # Monte Carlo Pi estimation dashboard
 ├── manifests/
 │   ├── namespace/
 │   │   └── namespace.yaml             # monitoring namespace
@@ -96,7 +97,7 @@ Grafana/
 │   │   ├── rbac.yaml                  # ServiceAccount + ClusterRole
 │   │   └── daemonset.yaml             # OTel Collector DaemonSet
 │   └── dummy-app/
-│       └── deployment.yaml            # Test workload (2 replicas, logs + metrics)
+│       └── deployment.yaml            # Monte Carlo Pi simulator (2 replicas)
 └── scripts/
     ├── 00-prerequisites.sh            # Install Docker, kubectl, kind
     ├── 01-create-cluster.sh           # Create kind cluster
@@ -138,14 +139,28 @@ Everything is declarative:
 - Starting Docker Desktop (must be running before scripts)
 - Changing the Grafana admin password on first login (prompted in UI)
 
-## Testing the Dashboard
+## Dashboards
 
-Once deployed, the "Cluster Overview" dashboard shows:
-1. **Targets Up/Down** — stat panels showing Prometheus target health
-2. **Scrape Duration by Job** — time series of how long each scrape takes
-3. **Samples Scraped** — stacked bar chart of samples per scrape job
-4. **Target Status** — table with color-coded UP/DOWN per target
-5. **Recent Logs** — live Loki log stream from the monitoring namespace
+### Monte Carlo Pi Estimation (home dashboard)
+
+A Monte Carlo simulator throws random darts at a unit circle inscribed in a 2x2 square. The ratio of hits (inside circle) to total throws converges to π/4, giving us an estimate of Pi. The dashboard tells this story in real time:
+
+1. **π Estimate** — current Monte Carlo estimate (should converge to 3.14159...)
+2. **True π** — the actual value for reference
+3. **Absolute Error** — |estimate − π|, shrinking over time
+4. **Hit Rate** — fraction of darts inside the circle (converges to π/4 ≈ 78.54%)
+5. **Total Throws / Throws per second** — throughput metrics
+6. **π Convergence Over Time** — the estimate approaching true π (with dashed reference line)
+7. **Hits vs Misses** — donut chart of cumulative hit/miss counts
+8. **Error Over Time** — error magnitude shrinking as more darts are thrown
+9. **Hit Rate Over Time** — convergence toward π/4 (with dashed reference line)
+10. **Per-Pod π Estimate** — each replica converges independently
+11. **Throw Distance Distribution** — histogram of distances from center
+12. **Recent Dart Throws** — live structured JSON log stream from Loki
+
+### Cluster Overview
+
+Infrastructure monitoring with Prometheus target health, scrape duration, samples scraped, target status table, and Loki log stream.
 
 ## Teardown
 

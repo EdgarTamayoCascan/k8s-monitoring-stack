@@ -21,7 +21,7 @@ data:
     org_role = Viewer
 
     [dashboards]
-    default_home_dashboard_path = /var/lib/grafana/dashboards/cluster-overview.json
+    default_home_dashboard_path = /var/lib/grafana/dashboards/monte-carlo-pi.json
 
     [log]
     mode = console
