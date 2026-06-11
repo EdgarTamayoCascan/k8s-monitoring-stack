@@ -19,7 +19,7 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 │  │Prometheus │             │   Loki   │                       │
 │  │  :9090    │             │  :3100   │                       │
 │  └────┬─────┘             └────▲─────┘                       │
-│       │                        │ pushes logs (OTLP)          │
+│       │                        │ OTel pushes logs (OTLP)      │
 │       │ scrapes /metrics  ┌────┴─────┐  tails /var/log/pods  │
 │       │                   │   OTel   │◄──────────┐           │
 │       │                   │Collector │(DaemonSet)│           │
@@ -43,14 +43,17 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 
 ## Prerequisites
 
-- **macOS** with Homebrew
-- **Docker runtime** (Docker Desktop or [Colima](https://github.com/abiosoft/colima))
+- **macOS or Linux**
+- **Docker runtime** — [Docker Desktop](https://www.docker.com/products/docker-desktop/) or [Colima](https://github.com/abiosoft/colima) (must be running before deploy)
+- **kubectl** and **kind** — installed automatically by `./scripts/00-prerequisites.sh` on macOS with Homebrew; on Linux, install manually
 - ~4 GB RAM available for the cluster
 
 ## Quick Start
 
+**macOS (Homebrew):**
+
 ```bash
-# 1. Install prerequisites (Docker, kubectl, kind)
+# 1. Install prerequisites (Docker CLI, kubectl, kind)
 ./scripts/00-prerequisites.sh
 
 # 2. Create the kind cluster
@@ -63,9 +66,15 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 ./scripts/03-verify.sh
 ```
 
+**Linux:** install Docker, kubectl, and kind manually, then run steps 2–4 above.
+
+The verify script checks pod health, Grafana/Prometheus/Loki APIs, provisioned datasources and dashboards, Prometheus scrape targets, Monte Carlo metrics, Loki log ingestion, and external access via localhost.
+
 After deployment:
 - **Grafana**: http://localhost:3000 (login: `admin` / `admin`)
 - **Prometheus**: http://localhost:9090
+
+Both URLs are exposed via kind `extraPortMappings` (NodePort `30300` → host `:3000`, NodePort `30900` → host `:9090`). No port-forwarding required.
 
 For submission details and interview talking points, see [SOLUTION.md](SOLUTION.md) and [REFLECTIONS.md](REFLECTIONS.md).
 
@@ -76,6 +85,7 @@ k8s-monitoring-stack/
 ├── SOLUTION.md                        # 1-pager: architecture, decisions, limitations
 ├── REFLECTIONS.md                     # Challenges, feedback, interview notes
 ├── kind-cluster.yaml                  # Kind cluster definition with port mappings
+├── .github/workflows/ci.yaml          # GitHub Actions: kind + deploy + verify
 ├── app/
 │   └── simulator.py                   # Monte Carlo Pi estimator (Python source)
 ├── dashboards/
@@ -139,15 +149,15 @@ Everything is declarative:
 - **OTel Collector**: Filelog receiver tails pod logs, exports to Loki via OTLP
 
 ### Security Considerations
-- All containers run as non-root users (`runAsNonRoot: true`)
-- Dedicated `fsGroup` for volume permissions
-- RBAC with least-privilege: Prometheus and OTel Collector get read-only access to K8s API
+- Grafana, Prometheus, and Loki run as non-root users (`runAsNonRoot: true`)
+- Init containers briefly run as root to fix PVC permissions before the main container starts
+- RBAC with least-privilege: Prometheus and OTel Collector get read-only access to the K8s API
 - Resource limits set on all containers to prevent runaway usage
+- Grafana anonymous auth enabled with Viewer role (local demo only; disable in production)
 
 ### What's NOT automated (manual steps)
-- Installing Docker Desktop (requires GUI interaction)
-- Starting Docker Desktop (must be running before scripts)
-- Changing the Grafana admin password on first login (prompted in UI)
+- Installing and starting a Docker runtime (Docker Desktop GUI, or `colima start` for Colima)
+- On Linux: installing Docker, kubectl, and kind manually (no Homebrew script)
 
 ## Dashboards
 
@@ -155,22 +165,19 @@ Everything is declarative:
 
 A Monte Carlo simulator throws random darts at a unit circle inscribed in a 2x2 square. The ratio of hits (inside circle) to total throws converges to π/4, giving us an estimate of Pi. The dashboard tells this story in real time:
 
-1. **π Estimate** — current Monte Carlo estimate (should converge to 3.14159...)
-2. **True π** — the actual value for reference
-3. **Absolute Error** — |estimate − π|, shrinking over time
-4. **Hit Rate** — fraction of darts inside the circle (converges to π/4 ≈ 78.54%)
-5. **Total Throws / Throws per second** — throughput metrics
-6. **π Convergence Over Time** — the estimate approaching true π (with dashed reference line)
-7. **Hits vs Misses** — donut chart of cumulative hit/miss counts
-8. **Error Over Time** — error magnitude shrinking as more darts are thrown
-9. **Hit Rate Over Time** — convergence toward π/4 (with dashed reference line)
-10. **Per-Pod π Estimate** — each replica converges independently
-11. **Throw Distance Distribution** — histogram of distances from center
-12. **Recent Dart Throws** — live structured JSON log stream from Loki
+1. **π Estimate** — current Monte Carlo estimate (converges to 3.14159…)
+2. **Absolute Error** — |estimate − π|, shrinking over time
+3. **Total Throws** — cumulative dart count across all replicas
+4. **Throws/sec** — throughput rate
+5. **π Convergence Over Time** — estimate approaching true π (dashed reference line at π)
+6. **Hits vs Misses** — donut chart of cumulative hit/miss counts
+7. **Absolute Error Over Time** — error magnitude shrinking as more darts are thrown
+8. **Per-Pod π Estimate** — each replica converges independently
+9. **Recent Dart Throws (Loki)** — live structured JSON log stream
 
 ### Cluster Overview
 
-Infrastructure monitoring with Prometheus target health, scrape duration, samples scraped, target status table, and Loki log stream.
+Infrastructure monitoring with Prometheus targets up/down, scrape duration, samples scraped per job, target status table, Loki ingestion rate, and a recent logs panel.
 
 ## Teardown
 
@@ -178,7 +185,17 @@ Infrastructure monitoring with Prometheus target health, scrape duration, sample
 ./scripts/99-teardown.sh
 ```
 
-This deletes the kind cluster and all associated resources. PVCs and data are destroyed.
+This deletes the kind cluster `monitoring-lab` and all associated resources. PVCs and data are destroyed. When run non-interactively (e.g. in CI), teardown proceeds without confirmation.
+
+## CI
+
+GitHub Actions runs the full deploy and verify pipeline on every push/PR to `master`:
+
+1. Create kind cluster from `kind-cluster.yaml`
+2. Run `./scripts/02-deploy-stack.sh`
+3. Run `./scripts/03-verify.sh`
+
+See [`.github/workflows/ci.yaml`](.github/workflows/ci.yaml).
 
 ## Challenges & Reflections
 
