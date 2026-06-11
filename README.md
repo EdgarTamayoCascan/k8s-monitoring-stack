@@ -91,6 +91,9 @@ k8s-monitoring-stack/
 ├── dashboards/
 │   ├── cluster-overview.json          # Infrastructure monitoring dashboard
 │   └── monte-carlo-pi.json           # Monte Carlo Pi estimation dashboard
+├── screenshots/
+│   ├── metrics-1.png                  # Dashboard: π estimate, convergence, hits/misses
+│   └── metrics-2.png                  # Dashboard: per-pod estimates, Loki logs
 ├── manifests/
 │   ├── namespace/
 │   │   └── namespace.yaml             # monitoring namespace
@@ -178,6 +181,14 @@ A Monte Carlo simulator throws random darts at a unit circle inscribed in a 2x2 
 ### Cluster Overview
 
 Infrastructure monitoring with Prometheus targets up/down, scrape duration, samples scraped per job, target status table, Loki ingestion rate, and a recent logs panel.
+
+### Screenshots
+
+Monte Carlo Pi dashboard (Prometheus metrics + Loki logs):
+
+![Monte Carlo Pi — metrics panels](screenshots/metrics-1.png)
+
+![Monte Carlo Pi — per-pod convergence and Loki log stream](screenshots/metrics-2.png)
 
 ## Teardown
 
