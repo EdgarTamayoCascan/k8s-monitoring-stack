@@ -87,6 +87,79 @@ else
     fail "No dashboards found"
 fi
 
+# 7. Prometheus targets (Monte Carlo simulator should be UP)
+printf "\n${BOLD}--- Prometheus Targets ---${NC}\n"
+PROM_TARGETS=$(kubectl exec -n monitoring deploy/prometheus -- \
+    wget -qO- http://localhost:9090/api/v1/targets 2>/dev/null || echo "{}")
+UP_COUNT=$(echo "$PROM_TARGETS" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+targets = data.get('data', {}).get('activeTargets', [])
+up = [t for t in targets if t.get('health') == 'up']
+print(len(up))
+" 2>/dev/null || echo "0")
+if [ "$UP_COUNT" -ge 3 ]; then
+    pass "Found ${UP_COUNT} Prometheus target(s) UP"
+else
+    fail "Expected at least 3 UP targets, found ${UP_COUNT}"
+fi
+
+# 8. Monte Carlo metrics flowing
+printf "\n${BOLD}--- Monte Carlo Metrics ---${NC}\n"
+METRIC_VALUE=$(kubectl exec -n monitoring deploy/prometheus -- \
+    wget -qO- 'http://localhost:9090/api/v1/query?query=monte_carlo_throws_total' 2>/dev/null || echo "{}")
+THROWS=$(echo "$METRIC_VALUE" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+results = data.get('data', {}).get('result', [])
+total = sum(float(r['value'][1]) for r in results)
+print(int(total))
+" 2>/dev/null || echo "0")
+if [ "$THROWS" -gt 0 ]; then
+    pass "Monte Carlo simulator has recorded ${THROWS} throws"
+else
+    fail "No monte_carlo_throws_total metrics found"
+fi
+
+# 9. Loki log ingestion smoke test
+printf "\n${BOLD}--- Loki Log Ingestion ---${NC}\n"
+if date -u -v-10M +%s >/dev/null 2>&1; then
+    LOKI_START=$(date -u -v-10M +%s)000000000
+else
+    LOKI_START=$(date -u -d '10 minutes ago' +%s)000000000
+fi
+LOKI_END=$(date -u +%s)000000000
+LOKI_LOGS=$(kubectl exec -n monitoring deploy/loki -- \
+    wget -qO- --post-data='query={service_name="simulator"}&limit=5' \
+    "http://localhost:3100/loki/api/v1/query_range?start=${LOKI_START}&end=${LOKI_END}" 2>/dev/null || echo "{}")
+LOG_COUNT=$(echo "$LOKI_LOGS" | python3 -c "
+import sys, json
+data = json.load(sys.stdin)
+streams = data.get('data', {}).get('result', [])
+count = sum(len(s.get('values', [])) for s in streams)
+print(count)
+" 2>/dev/null || echo "0")
+if [ "$LOG_COUNT" -gt 0 ]; then
+    pass "Loki received ${LOG_COUNT} log line(s) from simulator"
+else
+    fail "No simulator logs found in Loki"
+fi
+
+# 10. External access via kind port mappings (local clusters only)
+printf "\n${BOLD}--- External Access ---${NC}\n"
+if curl -sf http://localhost:3000/api/health >/dev/null 2>&1; then
+    pass "Grafana reachable at http://localhost:3000"
+else
+    fail "Grafana not reachable at http://localhost:3000"
+fi
+
+PROM_EXT=$(curl -sf http://localhost:9090/-/healthy 2>/dev/null || echo "unreachable")
+if echo "$PROM_EXT" | grep -qi "healthy"; then
+    pass "Prometheus reachable at http://localhost:9090"
+else
+    fail "Prometheus not reachable at http://localhost:9090"
+fi
+
 # Summary
 printf "\n${BOLD}=== Summary ===${NC}\n"
 if [ "$FAILURES" -eq 0 ]; then

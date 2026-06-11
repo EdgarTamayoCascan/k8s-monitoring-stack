@@ -1,0 +1,31 @@
+name: CI — Deploy & Verify
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  verify-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          config: kind-cluster.yaml
+          cluster_name: monitoring-lab
+
+      - name: Deploy monitoring stack
+        run: ./scripts/02-deploy-stack.sh
+
+      - name: Wait for metrics and logs to flow
+        run: sleep 45
+
+      - name: Run verification
+        run: ./scripts/03-verify.sh

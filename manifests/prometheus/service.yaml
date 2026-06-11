@@ -7,11 +7,12 @@ metadata:
     app.kubernetes.io/name: prometheus
     app.kubernetes.io/component: metrics
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - name: http
       port: 9090
       targetPort: http
+      nodePort: 30900
       protocol: TCP
   selector:
     app.kubernetes.io/name: prometheus

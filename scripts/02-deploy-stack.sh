@@ -68,6 +68,4 @@ kubectl get pods -n monitoring -o wide
 
 printf "\n${GREEN}=== Deployment Complete ===${NC}\n"
 printf "Grafana:    http://localhost:3000  (admin/admin)\n"
-printf "Prometheus: http://localhost:9090  (via port-forward or NodePort)\n\n"
-printf "To port-forward Prometheus:\n"
-printf "  kubectl port-forward svc/prometheus 9090:9090 -n monitoring\n\n"
+printf "Prometheus: http://localhost:9090\n\n"

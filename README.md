@@ -65,12 +65,16 @@ A production-style monitoring stack deployed on a local Kubernetes cluster using
 
 After deployment:
 - **Grafana**: http://localhost:3000 (login: `admin` / `admin`)
-- **Prometheus**: `kubectl port-forward svc/prometheus 9090:9090 -n monitoring`
+- **Prometheus**: http://localhost:9090
+
+For submission details and interview talking points, see [SOLUTION.md](SOLUTION.md) and [REFLECTIONS.md](REFLECTIONS.md).
 
 ## Project Structure
 
 ```
-Grafana/
+k8s-monitoring-stack/
+├── SOLUTION.md                        # 1-pager: architecture, decisions, limitations
+├── REFLECTIONS.md                     # Challenges, feedback, interview notes
 ├── kind-cluster.yaml                  # Kind cluster definition with port mappings
 ├── app/
 │   └── simulator.py                   # Monte Carlo Pi estimator (Python source)
@@ -92,7 +96,7 @@ Grafana/
 │   │   ├── rbac.yaml                  # ServiceAccount + ClusterRole
 │   │   ├── deployment.yaml            # Prometheus Deployment
 │   │   ├── pvc.yaml                   # Persistent storage
-│   │   └── service.yaml               # ClusterIP service
+│   │   └── service.yaml               # NodePort service (port 30900→9090)
 │   ├── loki/
 │   │   ├── configmap.yaml             # Loki server + schema configuration
 │   │   ├── deployment.yaml            # Loki Deployment
@@ -178,4 +182,4 @@ This deletes the kind cluster and all associated resources. PVCs and data are de
 
 ## Challenges & Reflections
 
-See the [Notion documentation](https://www.notion.so/wayve/Grafana-37703da5d69a80a399dfd076e0eb1dd5) for detailed reflections on the process.
+See [REFLECTIONS.md](REFLECTIONS.md) for detailed feedback on the process, challenges encountered, and what I would improve with more time.
