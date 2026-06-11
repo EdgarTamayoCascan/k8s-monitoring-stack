@@ -42,7 +42,7 @@ Scraping kubelet metrics requires HTTPS with the service account token and `inse
 - **Zero manual UI steps** — datasources, dashboards, and config all provisioned via ConfigMaps
 - **Automated verification** — `03-verify.sh` checks pods, health endpoints, datasources, and dashboards
 - **Security basics** — non-root containers, RBAC, resource limits throughout
-- **Memorable demo** — Monte Carlo Pi tells a story that makes the interview presentation easy
+- **Memorable demo** — Monte Carlo Pi tells a story that makes the walkthrough easy to follow
 
 ---
 

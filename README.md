@@ -76,14 +76,14 @@ After deployment:
 
 Both URLs are exposed via kind `extraPortMappings` (NodePort `30300` → host `:3000`, NodePort `30900` → host `:9090`). No port-forwarding required.
 
-For submission details and interview talking points, see [SOLUTION.md](SOLUTION.md) and [REFLECTIONS.md](REFLECTIONS.md).
+For the submission 1-pager and process reflections, see [SOLUTION.md](SOLUTION.md) and [REFLECTIONS.md](REFLECTIONS.md).
 
 ## Project Structure
 
 ```
 k8s-monitoring-stack/
 ├── SOLUTION.md                        # 1-pager: architecture, decisions, limitations
-├── REFLECTIONS.md                     # Challenges, feedback, interview notes
+├── REFLECTIONS.md                     # Challenges, feedback, and lessons learned
 ├── kind-cluster.yaml                  # Kind cluster definition with port mappings
 ├── .github/workflows/ci.yaml          # GitHub Actions: kind + deploy + verify
 ├── app/
