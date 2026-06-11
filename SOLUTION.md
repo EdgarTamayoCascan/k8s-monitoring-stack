@@ -68,21 +68,6 @@ Grafana datasources and dashboards are provisioned via ConfigMaps at startup. Pr
 
 ---
 
-## What I Would Do With More Time
-
-1. **Alertmanager** with Prometheus alerting rules (e.g. target down, high error rate)
-2. **Kustomize overlays** for dev/staging/prod environment separation
-3. **External Secrets Operator** for Grafana credentials and API keys
-4. **GitHub Actions CI** — spin up kind, deploy stack, run `03-verify.sh` on every PR
-5. **Promtail as alternative** — simpler Loki-native log shipper; document trade-off vs OTel
-6. **Ingress (nginx)** instead of NodePort for cleaner URL routing
-7. **Loki/Prometheus remote storage** (S3/GCS) for durable, scalable backends
-8. **Recording rules** in Prometheus for pre-aggregated dashboard queries
-9. **NetworkPolicies** to restrict inter-pod traffic to least privilege
-10. **Multi-node kind cluster** to validate DaemonSet log collection across nodes
-
----
-
 ## How to Evaluate
 
 ```bash
