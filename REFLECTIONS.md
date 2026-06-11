@@ -58,19 +58,3 @@ Scraping kubelet metrics requires HTTPS with the service account token and `inse
 | Log shipping | OTel filelog | Evaluate Promtail; add trace support |
 | Auth | admin/admin + anonymous | OAuth/SAML, RBAC in Grafana |
 | Testing | Shell verify script | Add Loki log ingestion smoke test, Prometheus target UP assertions |
-
----
-
-## Interview Presentation Notes
-
-When presenting to Tim Reynolds, I'd walk through in this order:
-
-1. **Architecture diagram** — 30 seconds, show data flow
-2. **Deploy live** (or show recording) — `./scripts/02-deploy-stack.sh` → `./scripts/03-verify.sh`
-3. **Monte Carlo dashboard** — watch π converge, show Loki log panel with JSON dart throws
-4. **Manifest walkthrough** — Grafana datasource provisioning, Prometheus K8s SD, OTel DaemonSet
-5. **Decisions & trade-offs** — kind vs k3s, OTel vs Promtail, raw manifests vs Helm
-6. **Honest limitations** — single replica, no alerting, local-only storage
-7. **Production roadmap** — what the first 2 weeks of hardening would look like
-
-The goal is to demonstrate **how I think**, not that the solution is production-perfect.
